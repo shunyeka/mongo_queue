@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mongo_queue_service",
-    version="0.0.2",
+    version="0.0.3",
     author="Amit Chotaliya",
     author_email="amit@shunyeka.com",
     description="Queue service built on top of mongo.",

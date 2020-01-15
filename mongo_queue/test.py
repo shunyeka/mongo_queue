@@ -160,3 +160,15 @@ class QueueTest(TestCase):
         job = self.queue.next()
         job.progress(10)
         self.assertEqual(job.progress_count, 10)
+
+    def test_unique_job(self):
+        data = {"context_id": "alpha",
+                "data": [1, 2, 3],
+                "more-data": time.time()}
+
+        self.queue.put(data, job_id=1)
+        job2 = self.queue.put({"context_id": "beta",
+                "data": [1, 2, 3],
+                "more-data": time.time()}, job_id=1)
+        self.assertEqual(job2, False)
+        self.assert_job_equal(self.queue.next(), data)

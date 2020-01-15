@@ -1,7 +1,8 @@
 import pymongo
 from datetime import datetime, timedelta
 from mongo_queue.job import Job
-import traceback
+from uuid import uuid4
+from pymongo import errors
 
 DEFAULT_INSERT = {
     "attempts": 0,
@@ -33,7 +34,9 @@ class Queue:
                                          ("attempts", pymongo.ASCENDING)], name="next_index")
         update_index = pymongo.IndexModel([("_id", pymongo.ASCENDING),
                                            ("locked_by", pymongo.ASCENDING)], name="update_index")
-        self.collection.create_indexes([next_index, update_index])
+        unique_index = pymongo.IndexModel([("job_id", pymongo.ASCENDING),
+                                           ("channel", pymongo.ASCENDING)], name="unique_index", unique=True)
+        self.collection.create_indexes([next_index, update_index, unique_index])
 
     def close(self):
         """Close the in memory queue connection.
@@ -71,14 +74,18 @@ class Queue:
             update={"attempts": {"$gte": self.max_attempts}},
             remove=True)
 
-    def put(self, payload, priority=0, channel="default"):
+    def put(self, payload, priority=0, channel="default", job_id=None):
         """Place a job into the queue
         """
         job = dict(DEFAULT_INSERT)
         job['priority'] = priority
         job['payload'] = payload
         job['channel'] = channel
-        return self.collection.insert_one(job)
+        job['job_id'] = job_id or str(uuid4())
+        try:
+            return self.collection.insert_one(job)
+        except errors.DuplicateKeyError as e:
+            return False
 
     def next(self, channel="default"):
         return self._wrap_one(self.collection.find_one_and_update(
