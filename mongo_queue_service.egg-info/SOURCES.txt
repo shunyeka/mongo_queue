@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.cfg
+setup.py
+mongo_queue/__init__.py
+mongo_queue/job.py
+mongo_queue/lock.py
+mongo_queue/queue.py
+mongo_queue/test.py
+mongo_queue_service.egg-info/PKG-INFO
+mongo_queue_service.egg-info/SOURCES.txt
+mongo_queue_service.egg-info/dependency_links.txt
+mongo_queue_service.egg-info/requires.txt
+mongo_queue_service.egg-info/top_level.txt

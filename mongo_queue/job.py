@@ -1,6 +1,7 @@
 import pymongo
 from datetime import datetime, timedelta
 import traceback
+from pymongo import ReturnDocument
 
 
 class Job:
@@ -36,6 +37,14 @@ class Job:
         return self._data["locked_at"]
 
     @property
+    def queued_at(self):
+        return self._data["queued_at"]
+
+    @property
+    def depends_on(self):
+        return self._data["depends_on"]
+
+    @property
     def last_error(self):
         return self._data["last_error"]
 
@@ -43,13 +52,17 @@ class Job:
     def progress_count(self):
         return self._data.get("progress", 0)
 
-    ## Job Control
+    ## Job Controller
 
     def complete(self):
         """Job has been completed.
         """
-        return self._queue.collection.delete_one(
+        # remove the dependency from other jobs.
+        deleted_job = self._queue.collection.delete_one(
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id})
+        self._queue.collection.update_many({},
+                                 {"$pull": {"depends_on": self.job_id}})
+        return deleted_job
 
     def error(self, message=None):
         """Note an error processing a job, and return it to the queue.
@@ -59,7 +72,7 @@ class Job:
             update={"$set": {
                 "locked_by": None, "locked_at": None, "last_error": message},
                 "$inc": {"attempts": 1}},
-            return_document=True)
+            return_document=ReturnDocument.AFTER)
 
     def progress(self, count=0):
         """Note progress on a long running task.
@@ -67,7 +80,7 @@ class Job:
         self._data = self._queue.collection.find_one_and_update(
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id},
             update={"$set": {"progress": count, "locked_at": datetime.now()}},
-            return_document=True)
+            return_document=ReturnDocument.AFTER)
 
     def release(self):
         """Put the job back into_queue.
@@ -76,7 +89,7 @@ class Job:
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id},
             update={"$set": {"locked_by": None, "locked_at": None},
                     "$inc": {"attempts": 1}},
-            return_document=True)
+            return_document=ReturnDocument.AFTER)
 
     def __str__(self):
         return str(self._data)

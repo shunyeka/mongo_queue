@@ -14,7 +14,7 @@ class MongoLockTest(TestCase):
 
     def setUp(self):
 
-        self.client = pymongo.MongoClient('localhost', 27017)
+        self.client = pymongo.MongoClient("mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority")
         self.db = self.client.test_queue
         self.collection = self.db.locks
 
@@ -54,7 +54,7 @@ class MongoLockTest(TestCase):
 class QueueTest(TestCase):
 
     def setUp(self):
-        self.client = pymongo.MongoClient('localhost', 27017)
+        self.client = pymongo.MongoClient("mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority")
         self.db = self.client.test_queue
         self.queue = Queue(self.db.queue_1, "consumer_1")
 
@@ -66,7 +66,7 @@ class QueueTest(TestCase):
             self.assertEqual(job.payload[k], v)
 
     def test_put_default_channel_next(self):
-        data = {"context_id": "alpha",
+        data = {"context_id": "pratham",
                 "data": [1, 2, 3],
                 "more-data": time.time()}
         self.queue.put(dict(data))
@@ -74,7 +74,7 @@ class QueueTest(TestCase):
         self.assert_job_equal(job, data)
 
     def test_put_custom_channel_next(self):
-        data = {"context_id": "alpha",
+        data = {"context_id": "pratham",
                 "data": [1, 2, 3],
                 "more-data": time.time()}
         self.queue.put(dict(data), channel="channle_1", priority=2)
@@ -87,13 +87,26 @@ class QueueTest(TestCase):
         self.assertEqual(job, None)
 
     def test_priority(self):
-        self.queue.put({"name": "alice"}, priority=1)
-        self.queue.put({"name": "bob"}, priority=2)
-        self.queue.put({"name": "mike"}, priority=0)
+        self.queue.put({"name": "ek"}, priority=1)
+        self.queue.put({"name": "be"}, priority=2)
+        self.queue.put({"name": "tran"}, priority=0)
 
         self.assertEqual(
-            ["bob", "alice", "mike"],
+            ["be", "ek", "tran"],
             [self.queue.next().payload['name'],
+             self.queue.next().payload['name'],
+             self.queue.next().payload['name']])
+
+    def test_depends_on(self):
+        job_id_1 = self.queue.put({"name": "char"})
+        job_id_2 = self.queue.put({"name": "panch"})
+        self.queue.put({"name": "chh"}, depends_on=[job_id_1])
+        self.queue.put({"name": "sat"}, depends_on=[job_id_1, job_id_2])
+
+        self.assertEqual(
+            ["char", "panch", "chh", "sat"],
+            [self.queue.next().payload['name'],
+             self.queue.next().payload['name'],
              self.queue.next().payload['name'],
              self.queue.next().payload['name']])
 

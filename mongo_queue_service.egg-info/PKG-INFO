@@ -1,3 +1,21 @@
+Metadata-Version: 2.1
+Name: mongo-queue-service
+Version: 0.0.4
+Summary: Queue service built on top of mongo.
+Home-page: https://github.com/shunyeka/mongo_queue/
+Author: Amit Chotaliya
+Author-email: amit@shunyeka.com
+License: UNKNOWN
+Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.4.tar.gz
+Keywords: mongo,queue,priority queue,task queue
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 # mongo_queue
 Task queue built on mongo with channels and unique job id.
 
@@ -100,12 +118,3 @@ job.complete()
 ```
 
 
-## Build Steps
-
-```bash
-# Setup venv of python version 3.6 and above
-pip install -r requirements.txt
-python -m pip install --upgrade twine
-python setup.py sdist bdist_wheel
-python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
-```
