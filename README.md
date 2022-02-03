@@ -7,7 +7,7 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
-#### v0.0.4
+#### v0.0.5
 
 - Added depends_on feature. You can create dependency between jobs by supplying depends_on[] with previously created job ids. 
 

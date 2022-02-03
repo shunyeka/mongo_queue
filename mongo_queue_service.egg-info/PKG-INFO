@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.0.4
+Version: 0.0.5
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
 Author-email: amit@shunyeka.com
 License: UNKNOWN
-Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.4.tar.gz
+Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.5.tar.gz
 Keywords: mongo,queue,priority queue,task queue
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
@@ -25,7 +25,7 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
-#### v0.0.4
+#### v0.0.5
 
 - Added depends_on feature. You can create dependency between jobs by supplying depends_on[] with previously created job ids. 
 
@@ -117,4 +117,14 @@ job.error("Some error occured")
 job.complete()
 ```
 
+
+## Build Steps
+
+```bash
+# Setup venv of python version 3.6 and above
+pip install -r requirements.txt
+python -m pip install --upgrade twine
+python setup.py sdist bdist_wheel
+python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+```
 
