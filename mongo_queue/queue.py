@@ -104,10 +104,12 @@ class Queue:
             return False
 
     def next(self, channel="default"):
+
         aggregate_result = list(self.collection.aggregate([
             {'$match': {'locked_by': None, 'locked_at': None,
-                        "channel": channel,
-                        "attempts": {"$lt": self.max_attempts}
+                            "channel": channel,
+                            "attempts": {"$lt": self.max_attempts},
+                            "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
                         }},
             {"$lookup": {
                 "from": "queue_test",

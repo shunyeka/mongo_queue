@@ -2,6 +2,7 @@ import pymongo
 from datetime import datetime, timedelta
 import traceback
 from pymongo import ReturnDocument
+from datetime import datetime, timedelta
 
 
 class Job:
@@ -47,6 +48,14 @@ class Job:
     @property
     def last_error(self):
         return self._data["last_error"]
+    
+    @property
+    def state(self):
+        return self._data.get("state")
+
+    @property
+    def run_after(self):
+        return self._data.get("run_after")
 
     @property
     def progress_count(self):
@@ -82,12 +91,15 @@ class Job:
             update={"$set": {"progress": count, "locked_at": datetime.now()}},
             return_document=ReturnDocument.AFTER)
 
-    def release(self):
+    def release(self, sleep=0, state=None):
         """Put the job back into_queue.
         """
+        now = datetime.now()
+        now_plus_seconds = now + timedelta(seconds = sleep)
+
         self._data = self._queue.collection.find_one_and_update(
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id},
-            update={"$set": {"locked_by": None, "locked_at": None},
+            update={"$set": {"locked_by": None, "locked_at": None, "run_after": now_plus_seconds, "state": state},
                     "$inc": {"attempts": 1}},
             return_document=ReturnDocument.AFTER)
 

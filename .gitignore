@@ -3,3 +3,5 @@
 build
 dist
 .idea
+test.py
+__pycache__

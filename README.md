@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.0.6
+
+- Added sleep and state feature while releasing a job. This provides a way to not pickup job until provided seconds and store state for long running jobs.
+
 #### v0.0.5
 
 - Added depends_on feature. You can create dependency between jobs by supplying depends_on[] with previously created job ids. 
@@ -108,4 +112,14 @@ pip install -r requirements.txt
 python -m pip install --upgrade twine
 python setup.py sdist bdist_wheel
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+```
+
+# Local Development and Testing
+
+```
+cd mong_queue # Root directory of the package
+python3.9 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python -m unittest mongo_queue.test
 ```

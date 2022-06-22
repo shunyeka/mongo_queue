@@ -1,3 +1,4 @@
+from time import sleep
 from mongo_queue.queue import Queue
 from pymongo import MongoClient
 from bson import ObjectId
@@ -11,11 +12,14 @@ col = db.test_queue_col
 queue = Queue(col, consumer_id="consumer-1", timeout=300, max_attempts=3)
 
 job_id_1 = queue.put({"task_id": 1}, priority=1)
-job_id_0 = queue.put({"task_id": 0}, priority=1)
-job_id_2 = queue.put({"task_id": 2}, priority=1, depends_on=[job_id_1])
-job_id_3 = queue.put({"task_id": 3}, priority=1, depends_on=[job_id_0, job_id_1])
+
 job = queue.next()
-job.complete()
+job.release(sleep=15, state={"test": "asdfasf"})
+job = queue.next()
+print("after release", job)
+sleep(17)
+job = queue.next()
+print("after sleep", job)
 #
 # while job := queue.next():
 #     print(job)
