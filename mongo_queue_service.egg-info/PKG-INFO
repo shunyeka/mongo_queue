@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.0.5
+Version: 0.0.6
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
@@ -24,6 +24,10 @@ Task queue built on mongo with channels and unique job id.
 Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.0.6
+
+- Added sleep and state feature while releasing a job. This provides a way to not pickup job until provided seconds and store state for long running jobs.
 
 #### v0.0.5
 
@@ -122,9 +126,22 @@ job.complete()
 
 ```bash
 # Setup venv of python version 3.6 and above
+python3.9 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-python -m pip install --upgrade twine
+pip install wheel
+pip install --upgrade twine
 python setup.py sdist bdist_wheel
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+```
+
+# Local Development and Testing
+
+```
+cd mong_queue # Root directory of the package
+python3.9 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python -m unittest mongo_queue.test
 ```
 

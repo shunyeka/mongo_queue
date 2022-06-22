@@ -86,9 +86,14 @@ job.progress(count=10)
 ```
 
 * Put the job back in queue, this will be picked up again later, this will update attempts after max attempts the job will not be picked up again.
+* You can also set state and sleep while releaseing a job
+* `sleep` in seconds. The job will not be picked up again till the sleep time expires.
+* `state` you can store state in the job for long running jobs.
 
 ```python
 job.release()
+# or
+job.release(sleep=10, state={"some": "state"})
 ```
 
 * Put the job back in queue with error, this will be picked up again later, this will update attempts after max attempts the job will not be picked up again.
@@ -108,8 +113,11 @@ job.complete()
 
 ```bash
 # Setup venv of python version 3.6 and above
+python3.9 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-python -m pip install --upgrade twine
+pip install wheel
+pip install --upgrade twine
 python setup.py sdist bdist_wheel
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 ```
