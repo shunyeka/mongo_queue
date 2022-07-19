@@ -104,22 +104,22 @@ class Queue:
             return False
 
     def next(self, channel="default"):
-
         aggregate_result = list(self.collection.aggregate([
             {'$match': {'locked_by': None, 'locked_at': None,
-                            "channel": channel,
-                            "attempts": {"$lt": self.max_attempts},
-                            "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
-                        }},
-            {"$lookup": {
-                "from": "queue_test",
-                "let": {"dependsOn": "$depends_on"},
-                "pipeline": [{"$match": {"$expr": {"$in": ["$_id", "$$dependsOn"]}}}, {"$count": "count"}],
-                "as": "dependencies"
+                        "channel": channel,
+                        "attempts": {"$lt": self.max_attempts},
+                        "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
+            }},
+            {"$lookup":
+                {
+                    "from": self.collection.name,
+                    "localField": "depends_on",
+                    "foreignField": "_id",
+                    "as": "dependencies"
             }},
             {"$addFields": {
-                "dependencies": {"$sum": "$dependencies.count"}
-            }},
+                "dependencies": {"$size": "$dependencies"}
+            }},    
             {"$match": {"dependencies": {"$eq": 0}}},
             {"$sort": {'priority': pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
             {"$limit": 1}

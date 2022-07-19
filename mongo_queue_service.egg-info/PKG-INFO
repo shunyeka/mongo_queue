@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.0.6
+Version: 0.0.7
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
 Author-email: amit@shunyeka.com
 License: UNKNOWN
-Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.5.tar.gz
+Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.7.tar.gz
 Keywords: mongo,queue,priority queue,task queue
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
@@ -24,6 +24,10 @@ Task queue built on mongo with channels and unique job id.
 Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.0.7
+
+- Added mongo backward compatibility. The aggregate function was using lookup which is only available after Mongo 3.6 (Not avaialble in the DocumentDB), Modified lookup to use old syntax.
 
 #### v0.0.6
 
@@ -104,9 +108,14 @@ job.progress(count=10)
 ```
 
 * Put the job back in queue, this will be picked up again later, this will update attempts after max attempts the job will not be picked up again.
+* You can also set state and sleep while releaseing a job
+* `sleep` in seconds. The job will not be picked up again till the sleep time expires.
+* `state` you can store state in the job for long running jobs.
 
 ```python
 job.release()
+# or
+job.release(sleep=10, state={"some": "state"})
 ```
 
 * Put the job back in queue with error, this will be picked up again later, this will update attempts after max attempts the job will not be picked up again.
@@ -138,6 +147,7 @@ python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 # Local Development and Testing
 
 ```
+export MONGO_URI=mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority
 cd mong_queue # Root directory of the package
 python3.9 -m venv venv
 source venv/bin/activate

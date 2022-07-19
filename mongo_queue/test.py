@@ -15,7 +15,7 @@ class MongoLockTest(TestCase):
 
     def setUp(self):
 
-        self.client = pymongo.MongoClient("mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority")
+        self.client = pymongo.MongoClient(os.environ("MONGO_URI"))
         self.db = self.client.test_queue
         self.collection = self.db.locks
 
@@ -55,7 +55,7 @@ class MongoLockTest(TestCase):
 class QueueTest(TestCase):
 
     def setUp(self):
-        self.client = pymongo.MongoClient("mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority")
+        self.client = pymongo.MongoClient(os.environ("MONGO_URI"))
         self.db = self.client.test_queue
         self.queue = Queue(self.db.queue_1, "consumer_1")
 
@@ -103,13 +103,15 @@ class QueueTest(TestCase):
         job_id_2 = self.queue.put({"name": "panch"})
         self.queue.put({"name": "chh"}, depends_on=[job_id_1])
         self.queue.put({"name": "sat"}, depends_on=[job_id_1, job_id_2])
-
-        self.assertEqual(
-            ["char", "panch", "chh", "sat"],
-            [self.queue.next().payload['name'],
-             self.queue.next().payload['name'],
-             self.queue.next().payload['name'],
-             self.queue.next().payload['name']])
+        next_1 = self.queue.next()
+        next_2 = self.queue.next()
+        self.assertEqual(["char", "panch"], [next_1.payload['name'], next_2.payload['name']])
+        next_1.complete()
+        next_3 = self.queue.next()
+        self.assertEqual("chh", next_3.payload["name"])
+        next_2.complete()
+        next_4 = self.queue.next()
+        self.assertEqual("sat", next_4.payload["name"])
 
     def test_complete(self):
         data = {"context_id": "alpha",

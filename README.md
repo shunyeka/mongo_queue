@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.0.7
+
+- Added mongo backward compatibility. The aggregate function was using lookup which is only available after Mongo 3.6 (Not avaialble in the DocumentDB), Modified lookup to use old syntax.
+
 #### v0.0.6
 
 - Added sleep and state feature while releasing a job. This provides a way to not pickup job until provided seconds and store state for long running jobs.
@@ -125,6 +129,7 @@ python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 # Local Development and Testing
 
 ```
+export MONGO_URI=mongodb+srv://username:pwd@mongourl/test?retryWrites=true&w=majority
 cd mong_queue # Root directory of the package
 python3.9 -m venv venv
 source venv/bin/activate
