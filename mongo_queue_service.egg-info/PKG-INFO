@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.0.7
+Version: 0.0.8
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
