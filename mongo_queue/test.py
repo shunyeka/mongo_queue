@@ -124,6 +124,16 @@ class QueueTest(TestCase):
         job.complete()
         self.assertEqual(self.queue.size(), 0)
 
+    def test_find_locked(self):
+        data = {"context_id": "alpha",
+                "data": [1, 2, 3]}
+
+        self.queue.put(data)
+        self.assertEqual(self.queue.size(), 1)
+        job = self.queue.next()
+        find_copy_job = self.queue.find_job_by_id(job.job_id)        
+        self.assert_job_equal(find_copy_job, data)
+
     def test_release(self):
         data = {"context_id": "alpha",
                 "data": [1, 2, 3],

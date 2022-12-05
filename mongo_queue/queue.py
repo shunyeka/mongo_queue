@@ -134,6 +134,13 @@ class Queue:
             return_document=ReturnDocument.AFTER
         ))
 
+    def find_job_by_id(self, _id):
+        if not _id:
+            raise AttributeError("id required.")
+        if not isinstance(_id, ObjectId):
+            _id = ObjectId(_id)
+        return self._wrap_one(self.collection.find_one(filter={"_id": _id}))
+
     def _jobs(self):
         return self.collection.find(
             query={"locked_by": None,
