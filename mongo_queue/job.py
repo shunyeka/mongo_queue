@@ -91,16 +91,16 @@ class Job:
             update={"$set": {"progress": count, "locked_at": datetime.now()}},
             return_document=ReturnDocument.AFTER)
 
-    def release(self, sleep=0, state=None):
+    def release(self, sleep=0, state=None, inc_attempt=True):
         """Put the job back into_queue.
         """
         now = datetime.now()
-        now_plus_seconds = now + timedelta(seconds = sleep)
-
+        now_plus_seconds = now + timedelta(seconds = sleep)        
+        attempt_increment_by = 1 if inc_attempt else 0
         self._data = self._queue.collection.find_one_and_update(
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id},
             update={"$set": {"locked_by": None, "locked_at": None, "run_after": now_plus_seconds, "state": state},
-                    "$inc": {"attempts": 1}},
+                    "$inc": {"attempts": attempt_increment_by}},
             return_document=ReturnDocument.AFTER)
 
     def __str__(self):

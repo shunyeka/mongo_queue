@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.0.9
+Version: 0.1.0
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
@@ -24,6 +24,14 @@ Task queue built on mongo with channels and unique job id.
 Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.1.0
+
+- Added optional inc_attempt parameter for job.release. This will allow user to choose if they want to increment the attempt when releasing a job.
+
+#### v0.0.9
+
+- Added method find_by_id to find a job by it's id.
 
 #### v0.0.7
 

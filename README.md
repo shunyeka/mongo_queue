@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.0
+
+- Added optional inc_attempt parameter for job.release. This will allow user to choose if they want to increment the attempt when releasing a job.
+
 #### v0.0.9
 
 - Added method find_by_id to find a job by it's id.

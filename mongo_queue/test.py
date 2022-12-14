@@ -145,6 +145,15 @@ class QueueTest(TestCase):
         self.assertEqual(self.queue.size(), 1)
         job = self.queue.next()
         self.assert_job_equal(job, data)
+        self.assertEqual(job.attempts, 1)
+        job.complete()
+
+        self.queue.put(data)
+        job = self.queue.next()
+        job.release(inc_attempt=False)
+        job = self.queue.next()
+        # Test if attempt is not being incremented
+        self.assertEqual(job.attempts, 0)
 
     def test_release_state(self):
         data = {"context_id": "alpha",
