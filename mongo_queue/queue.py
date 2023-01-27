@@ -126,13 +126,16 @@ class Queue:
         ]))
         if not aggregate_result:
             return None
-        return self._wrap_one(self.collection.find_one_and_update(
-            filter={"_id": aggregate_result[0]["_id"]},
+        next_job = self.collection.find_one_and_update(
+            filter={"_id": aggregate_result[0]["_id"], 'locked_by': None, 'locked_at': None},
             update={"$set": {"locked_by": self.consumer_id,
                              "locked_at": datetime.now()}},
             sort=[('priority', pymongo.DESCENDING)],
             return_document=ReturnDocument.AFTER
-        ))
+        )
+        if not next_job:
+            self.next(channel=channel)
+        return next_job
 
     def find_job_by_id(self, _id):
         if not _id:
