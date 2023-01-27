@@ -135,6 +135,9 @@ class Queue:
         )
         if not next_job:
             self.next(channel=channel)
+        else:
+            next_job = self._wrap_one(next_job)
+
         return next_job
 
     def find_job_by_id(self, _id):
