@@ -134,7 +134,7 @@ class Queue:
             return_document=ReturnDocument.AFTER
         )
         if not next_job:
-            self.next(channel=channel)
+            return self.next(channel=channel)
         else:
             next_job = self._wrap_one(next_job)
 
