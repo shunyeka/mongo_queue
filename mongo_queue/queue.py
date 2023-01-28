@@ -103,7 +103,9 @@ class Queue:
         except errors.DuplicateKeyError as e:
             return False
 
-    def next(self, channel="default"):
+    def next(self, channel="default", recursion_limit: int = 10, current_level: int = 0):
+        if current_level > recursion_limit:
+            return None
         aggregate_result = list(self.collection.aggregate([
             {'$match': {'locked_by': None, 'locked_at': None,
                         "channel": channel,
@@ -134,7 +136,7 @@ class Queue:
             return_document=ReturnDocument.AFTER
         )
         if not next_job:
-            return self.next(channel=channel)
+            return self.next(channel=channel, recursion_limit=recursion_limit, current_level=current_level+1)
         else:
             next_job = self._wrap_one(next_job)
 
