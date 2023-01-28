@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.1
+
+- Added find_and_update for finding the next job added process to pick the next job if the previous is already locked with multiple retries..
+
 #### v0.1.0
 
 - Added optional inc_attempt parameter for job.release. This will allow user to choose if they want to increment the attempt when releasing a job.
@@ -130,6 +134,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 pip install wheel
 pip install --upgrade twine
+rm -rf dist
 python setup.py sdist bdist_wheel
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 ```

@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.1.0
+Version: 0.1.1
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
 Author-email: amit@shunyeka.com
 License: UNKNOWN
-Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.0.9.tar.gz
+Download-URL: https://github.com/shunyeka/mongo_queue/archive/v0.1.1.tar.gz
 Keywords: mongo,queue,priority queue,task queue
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
@@ -24,6 +24,10 @@ Task queue built on mongo with channels and unique job id.
 Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.1.1
+
+- Added find_and_update for finding the next job added process to pick the next job if the previous is already locked with multiple retries..
 
 #### v0.1.0
 
