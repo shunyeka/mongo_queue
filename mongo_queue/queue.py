@@ -125,7 +125,7 @@ class Queue:
             {"$match": {"dependencies": {"$eq": 0}}},
             {"$sort": {'priority': pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
             {"$limit": 1}
-        ]))
+        ], allowDiskUse=True))
         if not aggregate_result:
             return None
         next_job = self.collection.find_one_and_update(
