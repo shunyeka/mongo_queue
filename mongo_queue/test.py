@@ -15,7 +15,7 @@ class MongoLockTest(TestCase):
 
     def setUp(self):
 
-        self.client = pymongo.MongoClient(os.environ.get("MONGO_URI"))
+        self.client = pymongo.MongoClient(os.environ.get("MONGO_URI"), retryWrites=False, maxPoolSize=1, directConnection=True)
         self.db = self.client.test_queue
         self.collection = self.db.locks
 
@@ -55,7 +55,7 @@ class MongoLockTest(TestCase):
 class QueueTest(TestCase):
 
     def setUp(self):
-        self.client = pymongo.MongoClient(os.environ.get("MONGO_URI"))
+        self.client = pymongo.MongoClient(os.environ.get("MONGO_URI"), retryWrites=False, maxPoolSize=1, directConnection=True)
         self.db = self.client.test_queue
         self.queue = Queue(self.db.queue_1, "consumer_1")
 

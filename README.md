@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.2
+
+- Added diskUsage for larger queue dependency resolution.
+
 #### v0.1.1
 
 - Added find_and_update for finding the next job added process to pick the next job if the previous is already locked with multiple retries..
