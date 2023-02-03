@@ -46,9 +46,10 @@ class Queue:
                                          ("depends_on", pymongo.ASCENDING)], name="next_index")
         update_index = pymongo.IndexModel([("_id", pymongo.ASCENDING),
                                            ("locked_by", pymongo.ASCENDING)], name="update_index")
+        depend_index = pymongo.IndexModel([("depends_on", pymongo.ASCENDING)], name="depend_index", sparse=True)
         unique_index = pymongo.IndexModel([("job_id", pymongo.ASCENDING),
                                            ("channel", pymongo.ASCENDING)], name="unique_index", unique=True)
-        self.collection.create_indexes([next_index, update_index, unique_index])
+        self.collection.create_indexes([next_index, update_index, unique_index, depend_index])
 
     def close(self):
         """Close the in memory queue connection.

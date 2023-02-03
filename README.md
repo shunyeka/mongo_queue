@@ -7,6 +7,12 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+
+#### v0.1.3
+
+- Added dependency index for faster lookup. Update `complete` method to retry 3 times while pulling the dependencies.
+- Corrected pull dependency query by adding filter. It was updating all the documents.
+
 #### v0.1.2
 
 - Added diskUsage for larger queue dependency resolution.

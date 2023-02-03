@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import traceback
 from pymongo import ReturnDocument
 from datetime import datetime, timedelta
+import time
 
 
 class Job:
@@ -12,7 +13,7 @@ class Job:
         """
         self._queue = queue
         self._data = data
-
+    
     @property
     def payload(self):
         return self._data['payload']
@@ -69,8 +70,17 @@ class Job:
         # remove the dependency from other jobs.
         deleted_job = self._queue.collection.delete_one(
             filter={"_id": self.job_id, "locked_by": self._queue.consumer_id})
-        self._queue.collection.update_many({},
+        
+        def remove_from_dependencies(tries=0):
+            if tries >= 3:
+                return
+            try:
+                self._queue.collection.update_many({"depends_on": self.job_id},
                                  {"$pull": {"depends_on": self.job_id}})
+            except pymongo.errors.WriteError as e:
+                time.sleep(0.5*tries)
+                remove_from_dependencies(tries=tries+1)
+        remove_from_dependencies()
         return deleted_job
 
     def error(self, message=None):
