@@ -111,19 +111,9 @@ class Queue:
             {'$match': {'locked_by': None, 'locked_at': None,
                         "channel": channel,
                         "attempts": {"$lt": self.max_attempts},
+                        "$or": [{"depends_on": { "$exists": False }, "depends_on": { "$size": 0 }}],
                         "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
-            }},
-            {"$lookup":
-                {
-                    "from": self.collection.name,
-                    "localField": "depends_on",
-                    "foreignField": "_id",
-                    "as": "dependencies"
-            }},
-            {"$addFields": {
-                "dependencies": {"$size": "$dependencies"}
-            }},    
-            {"$match": {"dependencies": {"$eq": 0}}},
+            }},            
             {"$sort": {'priority': pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
             {"$limit": 1}
         ], allowDiskUse=True))
