@@ -104,33 +104,21 @@ class Queue:
         except errors.DuplicateKeyError as e:
             return False
 
-    def next(self, channel="default", recursion_limit: int = 10, current_level: int = 0):
-        if current_level > recursion_limit:
-            return None
-        aggregate_result = list(self.collection.aggregate([
-            {'$match': {'locked_by': None, 'locked_at': None,
+    def next(self, channel="default"):        
+        next_job = self.collection.find_one_and_update(
+            filter={'locked_by': None, 'locked_at': None,
                         "channel": channel,
                         "attempts": {"$lt": self.max_attempts},
                         "$or": [{"depends_on": { "$exists": False }, "depends_on": { "$size": 0 }}],
                         "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
-            }},            
-            {"$sort": {'priority': pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
-            {"$limit": 1}
-        ], allowDiskUse=True))
-        if not aggregate_result:
-            return None
-        next_job = self.collection.find_one_and_update(
-            filter={"_id": aggregate_result[0]["_id"], 'locked_by': None, 'locked_at': None},
+            },
             update={"$set": {"locked_by": self.consumer_id,
                              "locked_at": datetime.now()}},
-            sort=[('priority', pymongo.DESCENDING)],
+            sort=[('priority', pymongo.DESCENDING), ("queued_at", pymongo.ASCENDING)],
             return_document=ReturnDocument.AFTER
         )
-        if not next_job:
-            return self.next(channel=channel, recursion_limit=recursion_limit, current_level=current_level+1)
-        else:
+        if next_job:
             next_job = self._wrap_one(next_job)
-
         return next_job
 
     def find_job_by_id(self, _id):

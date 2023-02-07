@@ -2,15 +2,11 @@ from unittest import TestCase
 import os
 import time
 
-from datetime import datetime
 
 import pymongo
 
 from mongo_queue import Queue
-from mongo_queue.lock import MongoLock, lock
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
-import traceback
 
 class QueueTest(TestCase):
 
@@ -57,19 +53,9 @@ class QueueTest(TestCase):
                     print(f"Completing job, {job.job_id}, {end-start}")
                 return job.job_id
             
-        
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = []                        
-            while self.queue.size() > 1:
-                start = time.time()
-                job = self.queue.next()
-                end = time.time()                
-                if job:
-                    print(f"Getting Next job took, {end-start}")
-                    futures.append(executor.submit(consume_and_act, job))
-            for future in as_completed(futures):
-                try:
-                    result = future.result()
-                    print(result)
-                except Exception as exc:
-                    traceback.print_exc()                
+        while self.queue.size() > 1:
+            start = time.time()
+            job = self.queue.next()
+            end = time.time()
+            print(f"Getting Next job took, {end-start}")             
+            consume_and_act(job)
