@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.5
+
+- Fixes issue with the next job method, it was picking up jobs with dependency
+
 #### v0.1.4
 
 - Improved the job.next method. Removed the lookup and removed double operation.
@@ -148,8 +152,8 @@ pip install -r requirements.txt
 pip install wheel
 pip install --upgrade twine
 rm -rf dist
-python setup.py sdist bdist_wheel
-python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+python3 setup.py sdist bdist_wheel
+python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 ```
 
 # Local Development and Testing
@@ -160,5 +164,5 @@ cd mong_queue # Root directory of the package
 python3.9 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python -m unittest mongo_queue.test
+python3 -m unittest mongo_queue.test
 ```

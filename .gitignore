@@ -5,3 +5,5 @@ dist
 .idea
 test.py
 __pycache__
+.DS_Store
+output.txt

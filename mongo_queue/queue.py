@@ -109,8 +109,10 @@ class Queue:
             filter={'locked_by': None, 'locked_at': None,
                         "channel": channel,
                         "attempts": {"$lt": self.max_attempts},
-                        "$or": [{"depends_on": { "$exists": False }, "depends_on": { "$size": 0 }}],
-                        "$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]
+                        "$and": [
+                            {"$or": [{"depends_on": { "$exists": False }, "depends_on": { "$size": 0 }}]},
+                            {"$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]}
+                        ]                        
             },
             update={"$set": {"locked_by": self.consumer_id,
                              "locked_at": datetime.now()}},
