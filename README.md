@@ -7,6 +7,9 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.4
+
+- Improved the job.next method. Removed the lookup and removed double operation.
 
 #### v0.1.3
 
