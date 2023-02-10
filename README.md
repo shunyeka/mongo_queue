@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.6
+
+- Added utility methods for getting running jobs and pending jobs count.
+
 #### v0.1.5
 
 - Fixes issue with the next job method, it was picking up jobs with dependency

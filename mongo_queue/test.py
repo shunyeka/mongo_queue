@@ -10,7 +10,6 @@ from mongo_queue import Queue
 from mongo_queue.lock import MongoLock, lock
 
 
-
 class MongoLockTest(TestCase):
 
     def setUp(self):
@@ -74,6 +73,26 @@ class QueueTest(TestCase):
         job = self.queue.next()
         self.assert_job_equal(job, data)
 
+    def test_stat_methods(self):
+        data = {"context_id": "pratham",
+                "data": [1, 2, 3],
+                "more-data": time.time()}
+        self.queue.put(dict(data))
+        pending_count = self.queue.pending_count()
+        running_count = self.queue.running_count()
+        self.assertEqual(pending_count, 1)
+        self.assertEqual(running_count, 0)
+        job = self.queue.next()
+        pending_count = self.queue.pending_count()
+        running_count = self.queue.running_count()
+        self.assertEqual(pending_count, 0)
+        self.assertEqual(running_count, 1)
+        job.complete()
+        pending_count = self.queue.pending_count()
+        running_count = self.queue.running_count()
+        self.assertEqual(pending_count, 0)
+        self.assertEqual(running_count, 0)
+
     def test_put_custom_channel_next(self):
         data = {"context_id": "pratham",
                 "data": [1, 2, 3],
@@ -131,7 +150,7 @@ class QueueTest(TestCase):
         self.queue.put(data)
         self.assertEqual(self.queue.size(), 1)
         job = self.queue.next()
-        find_copy_job = self.queue.find_job_by_id(job.job_id)        
+        find_copy_job = self.queue.find_job_by_id(job.job_id)
         self.assert_job_equal(find_copy_job, data)
 
     def test_release(self):
@@ -163,18 +182,18 @@ class QueueTest(TestCase):
 
         self.queue.put(data)
         job = self.queue.next()
-        job.release(state=state)        
+        job.release(state=state)
         job = self.queue.next()
         self.assertEqual(job.state, state)
 
     def test_release_sleep(self):
         data = {"context_id": "alpha",
                 "data": [1, 2, 3],
-                "more-data": time.time()}        
+                "more-data": time.time()}
 
         self.queue.put(data)
         job = self.queue.next()
-        job.release(sleep=10)        
+        job.release(sleep=10)
         job = self.queue.next()
         self.assertIsNone(job, "Job is not none, even after sleep of 10 was provided and the next executed immediately after")
         time.sleep(10)
@@ -229,7 +248,7 @@ class QueueTest(TestCase):
 
         self.queue.put(data, job_id=1)
         job2 = self.queue.put({"context_id": "beta",
-                "data": [1, 2, 3],
-                "more-data": time.time()}, job_id=1)
+                               "data": [1, 2, 3],
+                               "more-data": time.time()}, job_id=1)
         self.assertEqual(job2, False)
         self.assert_job_equal(self.queue.next(), data)

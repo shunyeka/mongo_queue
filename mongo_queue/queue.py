@@ -104,16 +104,28 @@ class Queue:
         except errors.DuplicateKeyError as e:
             return False
 
-    def next(self, channel="default"):        
+    def running_count(self, channel="default"):
+        return self.collection.count_documents(filter={'locked_by': {"$ne": None}, 'locked_at': {"$ne": None},
+                                                                  "channel": channel,
+                                                                  "attempts": {"$lt": self.max_attempts}
+                                                                  })
+
+    def _pending_filter(self, channel):
+        return {'locked_by': None, 'locked_at': None,
+                "channel": channel,
+                "attempts": {"$lt": self.max_attempts},
+                "$and": [
+                    {"$or": [{"depends_on": {"$exists": False}, "depends_on": {"$size": 0}}]},
+                    {"$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}]}
+                ]
+                }
+
+    def pending_count(self, channel="default"):
+        return self.collection.count_documents(filter=self._pending_filter(channel=channel))
+
+    def next(self, channel="default"):
         next_job = self.collection.find_one_and_update(
-            filter={'locked_by': None, 'locked_at': None,
-                        "channel": channel,
-                        "attempts": {"$lt": self.max_attempts},
-                        "$and": [
-                            {"$or": [{"depends_on": { "$exists": False }, "depends_on": { "$size": 0 }}]},
-                            {"$or": [{"run_after": { "$exists": False }}, { "run_after" : {"$lt": datetime.now()}}]}
-                        ]                        
-            },
+            filter=self._pending_filter(channel=channel),
             update={"$set": {"locked_by": self.consumer_id,
                              "locked_at": datetime.now()}},
             sort=[('priority', pymongo.DESCENDING), ("queued_at", pymongo.ASCENDING)],
@@ -154,9 +166,6 @@ class Queue:
             else:
                 print("Unsupported dependency", item)
         return depends_on_bson
-
-
-
 
     def stats(self):
         """Get statistics on the queue.
