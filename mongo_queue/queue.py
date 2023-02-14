@@ -50,7 +50,7 @@ class Queue:
         unique_index = pymongo.IndexModel([("job_id", pymongo.ASCENDING),
                                            ("channel", pymongo.ASCENDING)], name="unique_index", unique=True)
         repair_index = pymongo.IndexModel([("locked_by", pymongo.ASCENDING),
-                                           ("locked_at", pymongo.ASCENDING)], name="repair_index", unique=True)
+                                           ("locked_at", pymongo.ASCENDING)], name="repair_index", unique=False)
         self.collection.create_indexes([next_index, update_index, unique_index, depend_index, repair_index])
 
     def close(self):
@@ -72,11 +72,10 @@ class Queue:
         """Clear out stale locks.
         Increments per job attempt counter.
         """
-        self.collection.find_one_and_update(
+        self.collection.update_many(
             filter={
                 "locked_by": {"$ne": None},
-                "locked_at": {
-                    "$lt": datetime.now() - timedelta(seconds=self.timeout)}},
+                "locked_at": {"$lt": datetime.now() - timedelta(seconds=self.timeout)}},
             update={
                 "$set": {"locked_by": None, "locked_at": None},
                 "$inc": {"attempts": 1}}
@@ -113,7 +112,8 @@ class Queue:
                                                                   })
 
     def _pending_filter(self, channel):
-        return {'locked_by': None, 'locked_at': None,
+        return {'locked_by': None, 
+                'locked_at': None,
                 "channel": channel,
                 "attempts": {"$lt": self.max_attempts},
                 "$and": [

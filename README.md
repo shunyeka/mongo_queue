@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.7
+
+- Added index for repair operation.
+
 #### v0.1.6
 
 - Added utility methods for getting running jobs and pending jobs count.
