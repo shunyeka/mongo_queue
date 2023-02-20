@@ -7,6 +7,10 @@ Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.1.8
+
+- Added `delay` while queuing a new job. This allows user to delay the job execution by x seconds. It is similar to `sleep` but this allows the functionality for the fresh jobs.
+
 #### v0.1.7
 
 - Added index for repair operation.

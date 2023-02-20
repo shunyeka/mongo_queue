@@ -89,12 +89,14 @@ class Queue:
                                     update={"attempts": {"$gte": self.max_attempts}},
                                     remove=True)
 
-    def put(self, payload, priority=0, channel="default", job_id=None, depends_on=[], run_after: datetime = None):
+    def put(self, payload, priority=0, channel="default", job_id=None, depends_on=[], delay: int = None):
         """Place a job into the queue
         """
-        assert isinstance(run_after, datetime), "run_after is not a datetime object"
-        depends_on_bson = Queue._depends_on_bson(depends_on)
         job = dict(DEFAULT_INSERT)
+        if delay:            
+            now_plus_seconds = datetime.now() + timedelta(seconds=delay)
+            job['run_after'] = now_plus_seconds
+        depends_on_bson = Queue._depends_on_bson(depends_on)
         job['priority'] = priority
         job['payload'] = payload
         job['channel'] = channel
@@ -102,8 +104,6 @@ class Queue:
         job['depends_on'] = depends_on_bson
         job['queued_at'] = datetime.now()
 
-        if run_after:
-            job['run_after'] = run_after
         try:
             return self.collection.insert_one(job).inserted_id
         except errors.DuplicateKeyError as e:

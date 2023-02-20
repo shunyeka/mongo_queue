@@ -186,6 +186,17 @@ class QueueTest(TestCase):
         job = self.queue.next()
         self.assertEqual(job.state, state)
 
+    def test_delay(self):
+        data = {"context_id": "alpha",
+                "data": [1, 2, 3],
+                "more-data": time.time()}
+        self.queue.put(data, delay=10)
+        job = self.queue.next()
+        self.assertIsNone(job, "Job is not none, even after run_after of 10 seconds was provided and the next executed immediately after")
+        time.sleep(10)
+        job = self.queue.next()
+        self.assert_job_equal(job, data)
+
     def test_release_sleep(self):
         data = {"context_id": "alpha",
                 "data": [1, 2, 3],
