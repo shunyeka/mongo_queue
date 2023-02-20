@@ -89,9 +89,10 @@ class Queue:
                                     update={"attempts": {"$gte": self.max_attempts}},
                                     remove=True)
 
-    def put(self, payload, priority=0, channel="default", job_id=None, depends_on=[]):
+    def put(self, payload, priority=0, channel="default", job_id=None, depends_on=[], run_after: datetime = None):
         """Place a job into the queue
         """
+        assert isinstance(run_after, datetime), "run_after is not a datetime object"
         depends_on_bson = Queue._depends_on_bson(depends_on)
         job = dict(DEFAULT_INSERT)
         job['priority'] = priority
@@ -100,6 +101,9 @@ class Queue:
         job['job_id'] = job_id or str(uuid4())
         job['depends_on'] = depends_on_bson
         job['queued_at'] = datetime.now()
+
+        if run_after:
+            job['run_after'] = run_after
         try:
             return self.collection.insert_one(job).inserted_id
         except errors.DuplicateKeyError as e:
@@ -107,12 +111,12 @@ class Queue:
 
     def running_count(self, channel="default"):
         return self.collection.count_documents(filter={'locked_by': {"$ne": None}, 'locked_at': {"$ne": None},
-                                                                  "channel": channel,
-                                                                  "attempts": {"$lt": self.max_attempts}
-                                                                  })
+                                                       "channel": channel,
+                                                       "attempts": {"$lt": self.max_attempts}
+                                                       })
 
     def _pending_filter(self, channel):
-        return {'locked_by': None, 
+        return {'locked_by': None,
                 'locked_at': None,
                 "channel": channel,
                 "attempts": {"$lt": self.max_attempts},
