@@ -93,7 +93,7 @@ class Queue:
         """Place a job into the queue
         """
         job = dict(DEFAULT_INSERT)
-        if delay:            
+        if delay:
             now_plus_seconds = datetime.now() + timedelta(seconds=delay)
             job['run_after'] = now_plus_seconds
         depends_on_bson = Queue._depends_on_bson(depends_on)
@@ -116,18 +116,35 @@ class Queue:
                                                        })
 
     def _pending_filter(self, channel):
-        return {'locked_by': None,
-                'locked_at': None,
-                "channel": channel,
-                "attempts": {"$lt": self.max_attempts},
-                "$and": [
-                    {"$or": [{"depends_on": {"$exists": False}, "depends_on": {"$size": 0}}]},
-                    {"$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}]}
-                ]
-                }
+        filters = {'locked_by': None,
+                   'locked_at': None,
+                   "attempts": {"$lt": self.max_attempts},
+                   "$and": [
+                       {"$or": [{"depends_on": {"$exists": False}, "depends_on": {"$size": 0}}]},
+                       {"$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}]}
+                   ]
+                   }
+        if channel:
+            filters["channel"] = channel
+        return filters
 
     def pending_count(self, channel="default"):
         return self.collection.count_documents(filter=self._pending_filter(channel=channel))
+
+    def pending_count_by_channels(self):
+        pending_filter = self._pending_filter(channel=None)
+        return list(self.collection.aggregate([{
+            "$match": pending_filter
+        }, {
+            "$group": {"_id": "$channel", "count": {"$sum": 1}}
+        }, {
+            "$project": {
+                "channel": "$_id",
+                "count": 1,
+                "_id": 0
+            }
+        }
+        ]))
 
     def next(self, channel="default"):
         next_job = self.collection.find_one_and_update(

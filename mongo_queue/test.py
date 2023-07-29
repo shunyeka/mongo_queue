@@ -263,3 +263,16 @@ class QueueTest(TestCase):
                                "more-data": time.time()}, job_id=1)
         self.assertEqual(job2, False)
         self.assert_job_equal(self.queue.next(), data)
+
+    def test_pending_count_by_channels(self):
+        data = {"context_id": "alpha",
+                "data": [1, 2, 3],
+                "more-data": time.time()}
+
+        self.queue.put(data, channel="one")
+        self.queue.put(data, channel="two")
+        self.queue.put(data, channel="two")
+        self.queue.put(data, channel="three")
+        self.queue.put(data, channel="three")
+        self.queue.put(data, channel="three")
+        self.assertCountEqual(self.queue.pending_count_by_channels(), [{"channel": "one", "count": 1}, {"channel": "two", "count": 2}, {"channel": "three", "count": 3}])
