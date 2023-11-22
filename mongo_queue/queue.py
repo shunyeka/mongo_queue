@@ -82,12 +82,13 @@ class Queue:
         )
         # TODO: Find the jobs with dependencies and the job it depends on does not exist.
 
-    def drop_max_attempts(self):
+    def drop_max_attempts(self, channel: str = None):
         """
         """
-        self.collection.update_many(filter={},
-                                    update={"attempts": {"$gte": self.max_attempts}},
-                                    remove=True)
+        drop_filter = {"attempts": {"$gte": self.max_attempts}}
+        if channel:
+            drop_filter["channel"] = channel
+        self.collection.delete_many(drop_filter)
 
     def put(self, payload, priority=0, channel="default", job_id=None, depends_on=[], delay: int = None):
         """Place a job into the queue
