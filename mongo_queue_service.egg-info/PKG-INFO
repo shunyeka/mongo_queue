@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: mongo-queue-service
-Version: 0.1.8
+Version: 0.1.9
 Summary: Queue service built on top of mongo.
 Home-page: https://github.com/shunyeka/mongo_queue/
 Author: Amit Chotaliya
@@ -21,9 +21,13 @@ Task queue built on mongo with channels and unique job id.
 
 [Website](http://www.shunyeka.com) • [autobotAI Automation Platform](https://autobot.live/)
 
-Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
+Inspired by [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.1.9
+
+- Added method to get pending jobs by channels
 
 #### v0.1.8
 

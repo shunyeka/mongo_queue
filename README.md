@@ -3,9 +3,13 @@ Task queue built on mongo with channels and unique job id.
 
 [Website](http://www.shunyeka.com) • [autobotAI Automation Platform](https://autobot.live/)
 
-Inspired from [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
+Inspired by [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
+
+#### v0.1.9
+
+- Added method to get pending jobs by channels
 
 #### v0.1.8
 
@@ -164,8 +168,10 @@ pip install -r requirements.txt
 pip install wheel
 pip install --upgrade twine
 rm -rf dist
+# Goto https://pypi.org/manage/account/token/ and capture the `$HOME/.pypirc` config and create the file.
+vim $HOME/.pypirc
 python3 setup.py sdist bdist_wheel
-python3 -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+python3 -m twine upload -r pypi dist/* 
 ```
 
 # Local Development and Testing
