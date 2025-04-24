@@ -15,7 +15,7 @@ DEFAULT_INSERT = {
 
 
 class Queue:
-    def __init__(self, collection, consumer_id, timeout=300, max_attempts=3):
+    def __init__(self, collection, consumer_id, timeout=300, max_attempts=3, stale_hours=4):
         """
         """
         self.collection = collection
@@ -23,6 +23,7 @@ class Queue:
         self.timeout = timeout
         self.max_attempts = max_attempts
         self.ensure_indexes()
+        self.stale_hours = stale_hours
 
     def __str__(self):
         return str({
@@ -117,14 +118,22 @@ class Queue:
                                                        })
 
     def _pending_filter(self, channel):
-        filters = {'locked_by': None,
-                   'locked_at': None,
-                   "attempts": {"$lt": self.max_attempts},
-                   "$and": [
-                       {"$or": [{"depends_on": {"$exists": False}, "depends_on": {"$size": 0}}]},
-                       {"$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}]}
-                   ]
-                   }
+        filters = {
+            "$or": [
+                {
+                    'locked_by': None,
+                    'locked_at': None,
+                }, {
+                    'locked_by': {"$ne": None},
+                    'locked_at': {"$lt": (datetime.now() - timedelta(hours=self.stale_hours))},
+                }
+            ],
+            "attempts": {"$lt": self.max_attempts},
+            "$and": [
+               {"$or": [{"depends_on": {"$exists": False}}, {"depends_on": {"$size": 0}}]},
+               {"$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}]}
+            ]
+        }
         if channel:
             filters["channel"] = channel
         return filters
