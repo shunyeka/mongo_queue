@@ -7,6 +7,10 @@ Inspired by [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.2.2
+
+- Updated code to pickup job if they are picked up but not completed in 4 hours.
+
 #### v0.2.1
 
 - Added optional locking when finding job by id, so it can be marked completed.
@@ -166,7 +170,7 @@ job.complete()
 
 ```bash
 # Setup venv of python version 3.6 and above
-python3.9 -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 pip install wheel
@@ -174,8 +178,8 @@ pip install --upgrade twine
 rm -rf dist
 # Goto https://pypi.org/manage/account/token/ and capture the `$HOME/.pypirc` config and create the file.
 vim $HOME/.pypirc
-python3 setup.py sdist bdist_wheel
-python3 -m twine upload -r pypi dist/* 
+python setup.py sdist bdist_wheel
+python -m twine upload -r pypi dist/* 
 ```
 
 # Local Development and Testing
