@@ -159,20 +159,29 @@ class Queue:
             next_job = self._wrap_one(next_job)
         return next_job
 
-    def find_job_by_id(self, _id):
+    def find_job_by_id(self, _id, lock=False):
         if not _id:
             raise AttributeError("id required.")
         if not isinstance(_id, ObjectId):
             _id = ObjectId(_id)
-        return self._wrap_one(self.collection.find_one(filter={"_id": _id}))
+        if lock:
+            return self._wrap_one(self.collection.find_one_and_update(
+                filter={"_id": _id},
+                update={"$set": {"locked_by": self.consumer_id,
+                                 "locked_at": datetime.now()}},
+                return_document=ReturnDocument.AFTER
+            ))
+        else:
+            return self._wrap_one(self.collection.find_one(filter={"_id": _id}))
 
     def _jobs(self):
-        return self.collection.find(
+        jobs_cursor = self.collection.find(
             query={"locked_by": None,
                    "locked_at": None,
                    "attempts": {"$lt": self.max_attempts}},
             sort=[('priority', pymongo.DESCENDING)],
         )
+        jobs_cursor.hint("")
 
     def _wrap_one(self, data):
         return data and Job(self, data) or None

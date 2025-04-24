@@ -7,6 +7,10 @@ Inspired by [kapilt/mongoqueue](https://github.com/kapilt/mongoqueue)
 
 ### Change Log:
 
+#### v0.2.1
+
+- Added optional locking when finding job by id, so it can be marked completed.
+
 #### v0.1.9
 
 - Added method to get pending jobs by channels
